@@ -58,6 +58,7 @@ target/
 
 # Graphviz
 *.gv
+*.gv.pdf
 
 # Output files
 *.out

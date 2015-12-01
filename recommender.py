@@ -30,7 +30,7 @@ def main():
 
             if 'subscribers' in subreddit:
                 subscribers[title] = subreddit['subscribers']
-                
+
             if 'adult' in subreddit:
                 adult[title] = True
 
