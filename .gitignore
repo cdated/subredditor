@@ -55,3 +55,9 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Graphviz
+*.gv
+
+# Output files
+*.out

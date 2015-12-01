@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 from graphviz import Digraph
 import math
 import pymongo
@@ -9,6 +12,7 @@ def main():
     related_subs = {}
     subscribers = {}
     adult = {}
+    private = []
 
     subreddits = db.subreddits.find({'type': 'subreddit'})
     if subreddits:
@@ -22,11 +26,23 @@ def main():
             if 'adult' in subreddit:
                 adult[title] = True
 
+            if 'access' in subreddit:
+                if subreddit['access'] == 'private':
+                    private.append(title)
+
             related_subs[title] = links
 
-    generate_full_graph(related_subs, subscribers, adult, min_subscribers=0)
+
+    write_list_to_file(private, 'private_subs.txt')
+
+    generate_full_graph(related_subs, subscribers, adult, min_subscribers=100)
     generate_censored_graph(related_subs, subscribers, adult, min_subscribers=100)
     generate_adult_graph(related_subs, subscribers, adult, min_subscribers=100)
+
+def write_list_to_file(alist, filepath):
+    with open(filepath, 'w') as file:
+        for item in alist:
+            file.write("{}\n".format(item))
 
 def generate_full_graph(related_subs, subscribers, adult, min_subscribers):
 
