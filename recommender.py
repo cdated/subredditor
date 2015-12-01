@@ -4,15 +4,22 @@
 from graphviz import Digraph
 import math
 import pymongo
+import argparse
+import random
 
 EDGES = {}
 
-def main():
+def msg(message):
+    if VERBOSE:
+        print(message)
+
+def load_dataset(seed, render, breadth, depth):
     client = pymongo.MongoClient()
     db = client.reddit
 
     related_subs_down = {}
     subscribers = {}
+
     adult = {}
 
     related_subs_up = {}
@@ -36,24 +43,32 @@ def main():
 
             related_subs_down[title] = links
 
-    depth = 2
-    seed = 'python'
     g = Digraph('G', filename=seed+'.gv')
 
-    print("Travsering straight down")
+    msg("Travsering straight down")
     if seed in related_subs_down:
         if related_subs_down[seed] != []:
-            g = add_edges(g, seed, related_subs_down, depth)
+            g = add_edges(g, seed, related_subs_down, adult, breadth, depth)
 
-    print("Traversing up, then down")
-    if seed in related_subs_up:
-        for item in related_subs_up[seed]:
-            g = add_edges(g, item, related_subs_down, depth-1, up=True, reverse=True)
+#    msg("Traversing up, then down")
+#    if seed in related_subs_up:
+#        for item in related_subs_up[seed]:
+#            g = add_edges(g, item, related_subs_down, adult, breadth, depth-1, up=True, reverse=True)
+
+    if not len(EDGES):
+        print('Graph is empty, please try another subreddit')
+        return
+
+    if CENSORED >= 1:
+        print('# of NSFW nodes removed: ' + str(CENSORED))
 
     g.save()
-    g.view()
 
-def add_edges(graph, seed, recommender, depth, up=False, reverse=False):
+    # Draw graphviz graph
+    if render:
+        g.view()
+
+def add_edges(graph, seed, recommender, adult, breadth, depth, up=False, reverse=False):
     #if (depth == 0) or (not seed in recommender) or (seed in visited):
     if (depth == 0) or (not seed in recommender):
         return graph
@@ -61,11 +76,21 @@ def add_edges(graph, seed, recommender, depth, up=False, reverse=False):
     if reverse:
         up = not up
 
-    print('depth: ' + str(depth))
-    print(seed)
-    print(recommender[seed])
-    for sub in recommender[seed]:
-        if not sub:
+    msg('depth: ' + str(depth))
+    msg(seed)
+    msg(recommender[seed])
+
+    subs = recommender[seed]
+    random.shuffle(subs)
+    for sub in subs[:breadth]:
+        # Error in database, ignoring now
+        if (sub == ':**') or (not sub):
+            continue
+
+        # Apply censor
+        if sub in adult and not NSFW:
+            global CENSORED
+            CENSORED += 1
             continue
 
         if up:
@@ -75,14 +100,37 @@ def add_edges(graph, seed, recommender, depth, up=False, reverse=False):
 
         # Keep graph simple by only adding unqiue edges
         cur_edge = a_node + " -> " + b_node
-        print(cur_edge)
+        msg(cur_edge)
         if not cur_edge in EDGES:
             graph.edge(a_node, b_node)
             EDGES[cur_edge] = True
 
-        graph = add_edges(graph, sub, recommender, depth - 1, up)
+        graph = add_edges(graph, sub, recommender, adult, breadth, depth - 1, up)
 
     return graph
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-b', '--breadth', help='Tree traversal breadth', type=int, default=100)
+    parser.add_argument('-d', '--depth', help='Tree traversal depth', type=int, default=2)
+    parser.add_argument('-r', '--render', action='store_true', help='Render graph', default=False)
+    parser.add_argument('-n', '--nsfw', action='store_true', help='Allow over 18 subreddits as nodes', default=False)
+    parser.add_argument('-s', '--subreddit', help='Root subreddit', default='programming')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Show debugging', default=False)
+
+
+    args = parser.parse_args()
+    global VERBOSE
+    VERBOSE = args.verbose
+
+    global NSFW
+    NSFW = args.nsfw
+
+    global CENSORED
+    CENSORED = 0
+
+    load_dataset(args.subreddit, args.render, args.breadth, args.depth)
 
 if __name__ == '__main__':
     main()
