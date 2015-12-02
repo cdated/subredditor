@@ -52,11 +52,7 @@ def load_dataset(seed, render, breadth, depth):
 
     msg("Traversing up, then down")
     if seed in related_subs_up:
-
-        # Control breadth
-        subs = related_subs_up[seed]
-        random.shuffle(subs)
-        for item in subs[:breadth]:
+        for item in related_subs_up[seed]:
             g = add_edges(g, item, related_subs_down, adult, breadth, depth-1, up=True, reverse=True)
 
     if not len(EDGES):
@@ -74,7 +70,7 @@ def load_dataset(seed, render, breadth, depth):
 
 def add_edges(graph, seed, recommender, adult, breadth, depth, up=False, reverse=False):
     #if (depth == 0) or (not seed in recommender) or (seed in visited):
-    if (depth == 0) or (not seed in recommender):
+    if (depth == 0) or (breadth == 0) or (not seed in recommender):
         return graph
 
     if reverse:
@@ -110,7 +106,7 @@ def add_edges(graph, seed, recommender, adult, breadth, depth, up=False, reverse
             graph.edge(a_node, b_node)
             EDGES[cur_edge] = True
 
-        graph = add_edges(graph, sub, recommender, adult, breadth, depth - 1, up)
+        graph = add_edges(graph, sub, recommender, adult, breadth-1, depth - 1, up)
 
     return graph
 
