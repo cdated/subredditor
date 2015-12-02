@@ -50,10 +50,14 @@ def load_dataset(seed, render, breadth, depth):
         if related_subs_down[seed] != []:
             g = add_edges(g, seed, related_subs_down, adult, breadth, depth)
 
-#    msg("Traversing up, then down")
-#    if seed in related_subs_up:
-#        for item in related_subs_up[seed]:
-#            g = add_edges(g, item, related_subs_down, adult, breadth, depth-1, up=True, reverse=True)
+    msg("Traversing up, then down")
+    if seed in related_subs_up:
+
+        # Control breadth
+        subs = related_subs_up[seed]
+        random.shuffle(subs)
+        for item in subs[:breadth]:
+            g = add_edges(g, item, related_subs_down, adult, breadth, depth-1, up=True, reverse=True)
 
     if not len(EDGES):
         print('Graph is empty, please try another subreddit')
@@ -80,6 +84,7 @@ def add_edges(graph, seed, recommender, adult, breadth, depth, up=False, reverse
     msg(seed)
     msg(recommender[seed])
 
+    # Control breadth
     subs = recommender[seed]
     random.shuffle(subs)
     for sub in subs[:breadth]:
