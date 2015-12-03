@@ -6,6 +6,7 @@ import math
 import pymongo
 import argparse
 import random
+import sys
 
 EDGES = {}
 
@@ -110,6 +111,14 @@ def add_edges(graph, seed, recommender, adult, breadth, depth, up=False, reverse
 
     return graph
 
+def usage(parser):
+    """ Let the user know the expected runtime args """
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit()
+
+
 def main():
     parser = argparse.ArgumentParser()
 
@@ -120,6 +129,7 @@ def main():
     parser.add_argument('-s', '--subreddit', help='Root subreddit', default='programming')
     parser.add_argument('-v', '--verbose', action='store_true', help='Show debugging', default=False)
 
+    usage(parser)
 
     args = parser.parse_args()
     global VERBOSE
