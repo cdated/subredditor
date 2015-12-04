@@ -29,9 +29,13 @@ optional arguments:
 
 Generate a graph of all subreddits related to /r/wikipedia and /r/python.  Render the graph as a pdf with -r (render) flag and limit the number of child nodes to 2 with -b (breadth) flag.  When breadth is restricted the child nodes are chosen at random, breadth also decreases with depth to prevent extremely large graphs.
 
+======
+
 ```./recommender.py -s wikipedia -r -b 2```
 
 ![Wikipedia Graph](https://github.com/cdated/subreddit-crawler/blob/master/example/wikipedia.png?raw=true)
+
+======
 
 ```./recommender.py -s python -r -b 2```
 
