@@ -70,7 +70,8 @@ def load_dataset(seed, render, breadth, depth):
         g.view()
 
 def add_edges(graph, seed, recommender, adult, breadth, depth, up=False, reverse=False):
-    #if (depth == 0) or (not seed in recommender) or (seed in visited):
+    """ Add subreddits to graph as parent->child nodes through recusive lookup """
+
     if (depth == 0) or (breadth == 0) or (not seed in recommender):
         return graph
 
