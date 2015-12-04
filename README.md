@@ -31,8 +31,8 @@ Generate a graph of all subreddits related to /r/programming
 
 ```./recommender.py -s wikipedia -r -b 2```
 
-![Wikipedia Graph](https://github.com/cdated/conwayCurses/blob/master/examples/wikipedia.png?raw=true)
+![Wikipedia Graph](https://github.com/cdated/subreddit-crawler/blob/master/examples/wikipedia.png?raw=true)
 
 ```./recommender.py -s python -r -b 2```
 
-![Python Graph](https://github.com/cdated/conwayCurses/blob/master/examples/python.png?raw=true)
+![Python Graph](https://github.com/cdated/subreddit-crawler/blob/master/examples/python.png?raw=true)
