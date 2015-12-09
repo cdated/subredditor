@@ -26,7 +26,10 @@ def generate_full_graph(related_subs, subscribers, min_subscribers):
             if sub in subscribers:
                 subscriber_cnt = subscribers[sub]
                 if subscriber_cnt >= min_subscribers:
-                    log_cnt = math.log2(subscriber_cnt)
+                    if subscriber_cnt == 0:
+                        log_cnt = 0
+                    else:
+                        log_cnt = math.log2(subscriber_cnt)
                     g.edge(key, sub, weight=str(log_cnt))
                     print("Edge count: " + str(edges_added))
                     edges_added += 1
@@ -47,7 +50,10 @@ def generate_censored_graph(related_subs, subscribers, adult, min_subscribers):
             if sub in subscribers and not sub in adult:
                 subscriber_cnt = subscribers[sub]
                 if subscriber_cnt >= min_subscribers:
-                    log_cnt = math.log2(subscriber_cnt)
+                    if subscriper_cnt == 0:
+                        log_cnt = 0
+                    else:
+                        log_cnt = math.log2(subscriber_cnt)
                     g.edge(key, sub, weight=str(log_cnt))
                     print("Edge count: " + str(edges_added))
                     edges_added += 1
@@ -69,7 +75,10 @@ def generate_nsfw_graph(related_subs, subscribers, adult, min_subscribers):
             if sub in subscribers and sub in adult:
                 subscriber_cnt = subscribers[sub]
                 if subscriber_cnt >= min_subscribers:
-                    log_cnt = math.log2(subscriber_cnt)
+                    if subscriper_cnt == 0:
+                        log_cnt = 0
+                    else:
+                        log_cnt = math.log2(subscriber_cnt)
                     g.edge(key, sub, weight=str(log_cnt))
                     print("Edge count: " + str(edges_added))
                     edges_added += 1
