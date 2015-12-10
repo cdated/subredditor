@@ -145,7 +145,7 @@ def main():
     parser.add_argument('-d', '--depth', help='Tree traversal depth', type=int, default=2)
     parser.add_argument('-r', '--render', action='store_true', help='Render graph', default=False)
     parser.add_argument('-n', '--nsfw', action='store_true', help='Allow over 18 subreddits as nodes', default=False)
-    parser.add_argument('-s', '--subreddit', help='Root subreddit', default='programming')
+    parser.add_argument('-s', '--subreddit', help='Root subreddit', required=True)
     parser.add_argument('-v', '--verbose', action='store_true', help='Show debugging', default=False)
 
     usage(parser)
