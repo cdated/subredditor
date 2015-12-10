@@ -1,15 +1,15 @@
 subreddit-crawler
 =================
 
-generate_graph.py - Builds a database of related subreddits
+`generate_graph.py` - Builds a database of related subreddits
 
-recommender.py    - Creates a graph of all subreddits related to one that is user defined
+`recommender.py`    - Creates a graph of all subreddits related to one that is user defined
 
 ### Usage:
 
-To use the graph utilities recommender.py and generate_graph.py one must either run subreddit_crawler.py to populate the MongoDB database, or use mongorestore on the bson in data/dump/reddit.  Once a dataset has been loaded/generated two types of graphs can be constructed; a full network with filters or a region with child node limits.
+To use the graph utilities `recommender.py` and `generate_graph.py` one must either run `subreddit_crawler.py` to populate the MongoDB database, or use mongorestore on the bson in data/dump/reddit.  Once a dataset has been loaded/generated two types of graphs can be constructed; a full network with filters or a region with child node limits.
 
-generate_graph.py generates a full graph of recommended subreddits.  By default it hides nodes featuring explicit content, but can generate a censored graph (default), full graph, and the difference of the two.  One may also filter out subreddits with subscriber counts below a specified number with the minimum flag.  Output is a graphviz file.
+`generate_graph.py` generates a full graph of recommended subreddits.  By default it hides nodes featuring explicit content, but can generate a censored graph (default), full graph, and the difference of the two.  One may also filter out subreddits with subscriber counts below a specified number with the minimum flag.  Output is a graphviz file.
 
 ```
 usage: generate_graph.py [-h] [-c] -m MINIMUM [-n] [-v]
@@ -23,7 +23,7 @@ optional arguments:
   -v, --verbose         Show debugging
 ```
 
-recommender.py generates a sub-region of the full graph with limits on the breadth and depth of child nodes.  The user must specify a subreddit to as the root to which parent and child nodes are connected.  Output is a graphviz file and optionally a pdf.
+`recommender.py` generates a sub-region of the full graph with limits on the breadth and depth of child nodes.  The user must specify a subreddit to as the root to which parent and child nodes are connected.  Output is a graphviz file and optionally a pdf.
 
 ```
 usage: recommender.py [-h] [-b BREADTH] [-d DEPTH] [-r] [-n] [-s SUBREDDIT] [-v]
