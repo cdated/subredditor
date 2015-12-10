@@ -7,7 +7,23 @@ recommender.py    - Creates a graph of all subreddits related to one that is use
 
 ### Usage:
 
-To use the recommender one must either run generate_graph.py to populate the MongoDB database, or use mongorestore on the bson in data/dump/reddit.
+To use the graph utilities recommender.py and generate_graph.py one must either run subreddit_crawler.py to populate the MongoDB database, or use mongorestore on the bson in data/dump/reddit.  Once a dataset has been loaded/generated two types of graphs can be constructed; a full network with filters or a region with child node limits.
+
+generate_graph.py can generate a full graph of recommended subreddits.  By default it hides nodes featuring explicit content, but can generate a censored graph (default), full graph, and the difference of the two.  One may also filter out subreddits with subscriber counts below a specified number with the minimum flag.
+
+```
+usage: generate_graph.py [-h] [-c] -m MINIMUM [-n] [-v]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c, --censored        Hide over 18 subreddits
+  -m MINIMUM, --minimum MINIMUM
+                        Min subcribers to be added
+  -n, --nsfw            Only over 18 subreddits
+  -v, --verbose         Show debugging
+```
+
+
 
 ```
 usage: recommender.py [-h] [-b BREADTH] [-d DEPTH] [-r] [-n] [-s SUBREDDIT] [-v]
