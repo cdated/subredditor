@@ -12,78 +12,36 @@ def write_list_to_file(alist, filepath):
         for item in alist:
             file.write("{}\n".format(item))
 
-def generate_full_graph(related_subs, subscribers, min_subscribers):
+def generate_graph(related_subs, subscribers, nsfw_subs, censored, full, min_subscribers, outfile):
 
-    g = Digraph('G', filename='full.gv')
-
-    edges_added = 0
-    for key in related_subs:
-        for sub in related_subs[key]:
-            if not sub:
-                continue
-
-            # Filter: only include edge if sub has # subscribers
-            if sub in subscribers:
-                subscriber_cnt = subscribers[sub]
-                if subscriber_cnt >= min_subscribers:
-                    if subscriber_cnt == 0:
-                        log_cnt = 0
-                    else:
-                        log_cnt = math.log2(subscriber_cnt)
-                    g.edge(key, sub, weight=str(log_cnt))
-                    print("Edge count: " + str(edges_added))
-                    edges_added += 1
-
-    g.save()
-
-def generate_censored_graph(related_subs, subscribers, adult, min_subscribers):
-
-    g = Digraph('G', filename='censored.gv')
+    g = Digraph('G', filename=outfile)
 
     edges_added = 0
     for key in related_subs:
         for sub in related_subs[key]:
-            if not sub:
+            if not sub or not sub in subscribers:
                 continue
 
-            # Filter: only include edge if sub has # subscribers
-            if sub in subscribers and not sub in adult:
+            # In nsfw_subs and censored is mutually exclusive
+            if ((sub in nsfw_subs) != (censored)) or full:
                 subscriber_cnt = subscribers[sub]
+
+                # Filter: only include edge if sub has # subscribers
                 if subscriber_cnt >= min_subscribers:
-                    if subscriper_cnt == 0:
-                        log_cnt = 0
-                    else:
-                        log_cnt = math.log2(subscriber_cnt)
-                    g.edge(key, sub, weight=str(log_cnt))
+                    g.edge(key, sub, weight=calculate_edge_weight(subscriber_cnt))
                     print("Edge count: " + str(edges_added))
                     edges_added += 1
 
     g.save()
 
 
-def generate_nsfw_graph(related_subs, subscribers, adult, min_subscribers):
+def calculate_edge_weight(subscriber_cnt):
+    if subscriber_cnt == 0:
+        log_cnt = 0
+    else:
+        log_cnt = math.log2(subscriber_cnt)
 
-    g = Digraph('G', filename='nsfw.gv')
-
-    edges_added = 0
-    for key in related_subs:
-        for sub in related_subs[key]:
-            if not sub:
-                continue
-
-            # Filter: only include edge if sub has # subscribers
-            if sub in subscribers and sub in adult:
-                subscriber_cnt = subscribers[sub]
-                if subscriber_cnt >= min_subscribers:
-                    if subscriper_cnt == 0:
-                        log_cnt = 0
-                    else:
-                        log_cnt = math.log2(subscriber_cnt)
-                    g.edge(key, sub, weight=str(log_cnt))
-                    print("Edge count: " + str(edges_added))
-                    edges_added += 1
-
-    g.save()
+    return str(log_cnt)
 
 def usage(parser):
     """ Let the user know the expected runtime args """
@@ -110,7 +68,7 @@ def main():
 
     related_subs = {}
     subscribers = {}
-    adult = {}
+    nsfw_subs = {}
     private = []
 
     subreddits = db.subreddits.find({'type': 'subreddit'})
@@ -121,9 +79,9 @@ def main():
 
             if 'subscribers' in subreddit:
                 subscribers[title] = subreddit['subscribers']
-                
+
             if 'adult' in subreddit:
-                adult[title] = True
+                nsfw_subs[title] = True
 
             if 'access' in subreddit:
                 if subreddit['access'] == 'private':
@@ -131,16 +89,22 @@ def main():
 
             related_subs[title] = links
 
-
     write_list_to_file(private, 'private_subs.txt')
 
-    # Censored trumps over args
+    censored = False
+    full = False
+
+    # If censored and nsfw flags, opt for censored
     if args.censored:
-        generate_censored_graph(related_subs, subscribers, adult, args.minimum)
+        outfile = 'censored.gv'
+        censored = True
     elif args.nsfw:
-        generate_nsfw_graph(related_subs, subscribers, adult, args.minimum)
+        outfile = 'nsfw.gv'
     else:
-        generate_full_graph(related_subs, subscribers, args.minimum)
+        outfile = 'full.gv'
+        full = True
+
+    generate_graph(related_subs, subscribers, nsfw_subs, censored, full, args.minimum, outfile)
 
 
 if __name__ == '__main__':
