@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import argparse
 import praw
 import time
 import sys
@@ -135,18 +136,17 @@ def add_record(db, record):
         # Ignore collision
         pass
 
-def main():
+def crawl(subreddit_seed):
     client = pymongo.MongoClient()
     db = client.reddit
-
-    seed_subreddit = 'programming'
-    seed_subreddit = 'psytranceproduction'
 
     db_backlog = db.subreddits.find_one({'name': 'backlog'})
     if db_backlog:
         backlog = db_backlog['items']
-    else:
-        backlog = [seed_subreddit]
+
+    # If the backlog object is invalid or empty, use the seed
+    if not db_backlog or not backlog:
+        backlog = [subreddit_seed]
 
     subreddits = db.subreddits.find({'type': 'subreddit'})
     if subreddits:
@@ -182,6 +182,23 @@ def main():
 
         # Update the backlog in the DB
         db.subreddits.update_one({'name': 'backlog'}, {"$set": {"items": backlog}}, upsert=True)
+
+def usage(parser):
+    """ Let the user know the expected runtime args """
+
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit()
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-s', '--subreddit', help='Subreddit seed', required=True)
+
+    usage(parser)
+
+    args = parser.parse_args()
+    crawl(args.subreddit)
 
 if __name__ == '__main__':
     main()
