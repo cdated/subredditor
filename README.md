@@ -1,7 +1,13 @@
 subreddit-crawler
 =================
 
-`subreddit-crawler.py` - Builds a database of related subreddits
+#### Crawling
+
+`subreddit_crawler.py` - Builds a database of related subreddits
+
+`show_progress.py`- Periodically checks the database and reports crawler progress
+
+#### Analysis
 
 `generate_graph.py` - Creates a graph of all subreddits that are connected through recommendations section
 
