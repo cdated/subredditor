@@ -7,6 +7,7 @@ import pymongo
 import argparse
 import random
 import sys
+import os
 
 
 class Recommender:
@@ -25,6 +26,9 @@ class Recommender:
         # These vary from graph to graph
         self.edges= {}
         self.censored_cnt = 0
+
+        # Alternate path other than current dir
+        self.output_path = ''
 
     def msg(self, message):
         if self.verbose:
@@ -56,7 +60,8 @@ class Recommender:
     def generate_graph(self, seed, render):
         self.sensored_cnt = 0
 
-        g = Digraph('G', filename=seed+'.gv')
+        filename = os.path.join(self.output_path, seed + '.gv')
+        g = Digraph('G', format='png', filename=filename)
 
         self.msg("Travsering straight down")
         if seed in self.related_subs_down:
@@ -79,7 +84,7 @@ class Recommender:
 
         # Draw graphviz graph
         if render:
-            g.view()
+            g.render(view=False)
 
         self.cleanup()
 
