@@ -63,3 +63,6 @@ target/
 # Output files
 *.out
 private_subs.txt
+
+# Virtualenv
+crawler
