@@ -61,10 +61,11 @@ class Recommender:
         self.sensored_cnt = 0
 
         # Ensure the generated file indicates nsfw or not
+        base = seed + '_b' + str(self.breadth) + '_d' + str(self.depth)
         if self.nsfw:
-            filename = os.path.join(self.output_path, seed + '_nsfw.gv')
+            filename = os.path.join(self.output_path, base + '_nsfw.gv')
         else:
-            filename = os.path.join(self.output_path, seed + '.gv')
+            filename = os.path.join(self.output_path, base + '.gv')
 
         g = Digraph('G', format='png', filename=filename)
 
