@@ -60,7 +60,12 @@ class Recommender:
     def generate_graph(self, seed, render):
         self.sensored_cnt = 0
 
-        filename = os.path.join(self.output_path, seed + '.gv')
+        # Ensure the generated file indicates nsfw or not
+        if self.nsfw:
+            filename = os.path.join(self.output_path, seed + '_nsfw.gv')
+        else:
+            filename = os.path.join(self.output_path, seed + '.gv')
+
         g = Digraph('G', format='png', filename=filename)
 
         self.msg("Travsering straight down")
@@ -74,8 +79,7 @@ class Recommender:
                 g = self.add_edges(g, item, self.breadth, self.depth-1, up=True, reverse=True)
 
         if not len(self.edges):
-            print('Graph is empty, please try another subreddit')
-            return
+            return ('Failure', 'Graph is empty, please try another subreddit')
 
         if self.censored_cnt >= 1:
             print('# of NSFW nodes removed: ' + str(self.censored_cnt))
@@ -87,6 +91,8 @@ class Recommender:
             g.render(view=False)
 
         self.cleanup()
+
+        return ('Sucess', filename + '.png')
 
     def add_edges(self, graph, seed, breadth, depth, up=False, reverse=False):
         """ Add subreddits to graph as parent->child nodes through recusive lookup """
