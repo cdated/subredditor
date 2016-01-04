@@ -21,6 +21,10 @@ In short, this project can obtain subreddit data, report progress, and display t
 
 To use the graph utilities `recommender.py` and `generate_graph.py` one must either run `subreddit_crawler.py` to populate the MongoDB database, or use mongorestore on the bson in data/dump/reddit.  Once a dataset has been loaded/generated two types of graphs can be constructed; a full network with filters or a region with child node limits.
 
+#### Loading Database
+
+There's already a database (approx 8Mb) in the repo for those who don't want to run the crawler to see the connections.  To load it just run the `restore_db.sh` script.
+
 #### Crawling
 
 `subreddit_crawler.py` starts at a user defined subreddit and collects all the recommendations.  It uses the parsed recommendations to get the more until is recurses through all possible subreddits linked.  Previously explored subreddits are not revisited.  A backlog of subreddits to be visited, and subreddit relationships are stored in MongoDB and loaded on application start if available.
