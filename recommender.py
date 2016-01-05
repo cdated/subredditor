@@ -43,8 +43,6 @@ class Recommender:
         uri = os.environ.get('MONGOCLIENT','localhost')
         client = pymongo.MongoClient(uri)
         db = client.redditgraph
-        if uri != 'localhost':
-            db.authenticate(os.environ.get('MONGOUSER'), os.environ.get('MONGOPASS'))
 
         subreddits = db.subreddits.find({'type': 'subreddit'})
         if subreddits:
