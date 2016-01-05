@@ -30,12 +30,18 @@ class Recommender:
         # Alternate path other than current dir
         self.output_path = ''
 
+        self.node_count = 0
+        self.node_list = []
+        self.nodes = {}
+        self.links = []
+
     def msg(self, message):
         if self.verbose:
             print(message)
 
     def load_dataset(self):
-        client = pymongo.MongoClient()
+        uri = os.environ.get('MONGOCLIENT','localhost')
+        client = pymongo.MongoClient(uri)
         db = client.reddit
 
         subreddits = db.subreddits.find({'type': 'subreddit'})
@@ -63,9 +69,9 @@ class Recommender:
         # Ensure the generated file indicates nsfw or not
         base = seed + '_b' + str(self.breadth) + '_d' + str(self.depth)
         if self.nsfw:
-            filename = os.path.join(self.output_path, base + '_nsfw.gv')
+            filename = base + '_nsfw.json'
         else:
-            filename = os.path.join(self.output_path, base + '.gv')
+            filename = base + '.json'
 
         g = Digraph('G', format='png', filename=filename)
 
@@ -86,14 +92,21 @@ class Recommender:
             print('# of NSFW nodes removed: ' + str(self.censored_cnt))
 
         g.save()
+        filename = os.path.join(self.output_path, filename)
+        with open(filename, "wt") as d3:
+            print('{"nodes":[', end="", file=d3)
+            print(', '.join(self.node_list), end="", file=d3)
+            print('], "links":[', end="", file=d3)
+            print(', '.join(self.links) , end="", file=d3)
+            print(']}', end="", file=d3)
 
         # Draw graphviz graph
-        if render:
-            g.render(view=False)
+        #if render:
+        #    g.render(view=False)
 
         self.cleanup()
 
-        return ('Sucess', filename + '.png')
+        return ('Sucess', filename)
 
     def add_edges(self, graph, seed, breadth, depth, up=False, reverse=False):
         """ Add subreddits to graph as parent->child nodes through recusive lookup """
@@ -127,16 +140,27 @@ class Recommender:
             else:
                 a_node, b_node = seed, sub
 
+            self.update_nodes(a_node)
+            self.update_nodes(b_node)
+
             # Keep graph simple by only adding unqiue edges
             cur_edge = a_node + " -> " + b_node
             self.msg(cur_edge)
             if not cur_edge in self.edges:
                 graph.edge(a_node, b_node)
+                self.links.append('{"source":' + str(self.nodes[a_node]) +
+                                  ',"target":' + str(self.nodes[b_node]) + ', "value":1}')
                 self.edges[cur_edge] = True
 
             graph = self.add_edges(graph, sub, breadth-1, depth - 1, up)
 
         return graph
+
+    def update_nodes(self, node):
+        if not node in self.nodes:
+            self.nodes[node] = self.node_count
+            self.node_list.append('{"name":"' + node +'"}')
+            self.node_count += 1
 
     def cleanup(self):
         self.edges= {}

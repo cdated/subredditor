@@ -1,0 +1,39 @@
+.link {
+    fill: none;
+    stroke-width: 1.5px;
+    stroke: #999;
+    stroke-opacity: .6;
+}
+
+.node {
+    stroke: #fff;
+    stroke-width: 1.5px;
+}
+
+circle {
+    fill: #B7D8FF;
+    stroke: #333;
+    stroke-width: 1.5px;
+}
+
+text {
+    text-baseline: middle;
+    text-anchor: middle;
+    font: 14px sans-serif;
+    /*pointer-events: none;*/
+    text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+
+text a {
+    fill: navy;
+}
+
+text a:visited {
+    fill: darkpurple;
+}
+
+text a:hover,
+text a:active {
+    text-decoration: underline;
+    fill: darkred;
+}

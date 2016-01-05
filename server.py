@@ -25,12 +25,15 @@ def my_link():
 
     if result == 'Sucess':
         filename = msg
-        html = "<img src='" + filename + "'></img>"
+        html = render_template('graph.html', filename=filename)
     else:
         html = msg
 
     return html
 
 if __name__ == '__main__':
+    if not os.path.exists('static'):
+        os.mkdir('static')
     port = int(os.environ.get('PORT',5000))
+    app.debug = True
     app.run(host='0.0.0.0', port=port)
