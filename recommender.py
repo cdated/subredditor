@@ -67,13 +67,12 @@ class Recommender:
         self.sensored_cnt = 0
 
         # Ensure the generated file indicates nsfw or not
-        base = seed + '_b' + str(self.breadth) + '_d' + str(self.depth)
+        filename = seed + '_b' + str(self.breadth) + '_d' + str(self.depth)
+        filename = os.path.join(self.output_path, filename)
         if self.nsfw:
-            filename = base + '_nsfw.json'
-        else:
-            filename = base + '.json'
+            filename += '_nsfw'
 
-        g = Digraph('G', format='png', filename=filename)
+        g = Digraph('G', format='png', filename=filename+'.gv')
 
         self.msg("Travsering straight down")
         if seed in self.related_subs_down:
@@ -91,18 +90,21 @@ class Recommender:
         if self.censored_cnt >= 1:
             print('# of NSFW nodes removed: ' + str(self.censored_cnt))
 
+        # Save graphviz file
         g.save()
-        filename = os.path.join(self.output_path, filename)
+
+        # Draw graphviz graph
+        if render:
+            g.render(view=True)
+
+        # Save json for D3
+        filename = filename + '.json'
         with open(filename, "wt") as d3:
             print('{"nodes":[', end="", file=d3)
             print(', '.join(self.node_list), end="", file=d3)
             print('], "links":[', end="", file=d3)
             print(', '.join(self.links) , end="", file=d3)
             print(']}', end="", file=d3)
-
-        # Draw graphviz graph
-        #if render:
-        #    g.render(view=False)
 
         self.cleanup()
 

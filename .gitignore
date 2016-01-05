@@ -62,6 +62,8 @@ target/
 
 # Output files
 *.out
+*.png
+*.json
 private_subs.txt
 
 # Virtualenv

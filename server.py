@@ -21,7 +21,7 @@ def my_link():
     # Graph parameters
     rec.output_path = 'static'
 
-    (result, msg) = rec.generate_graph(seed, True)
+    (result, msg) = rec.generate_graph(seed, False)
 
     if result == 'Sucess':
         filename = msg
