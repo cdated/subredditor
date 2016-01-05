@@ -42,7 +42,7 @@ class Recommender:
     def load_dataset(self):
         uri = os.environ.get('MONGOCLIENT','localhost')
         client = pymongo.MongoClient(uri)
-        db = client.reddit
+        db = client.redditgraph
 
         subreddits = db.subreddits.find({'type': 'subreddit'})
         if subreddits:
