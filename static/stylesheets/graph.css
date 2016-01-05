@@ -25,7 +25,7 @@ text {
 }
 
 text a {
-    fill: navy;
+    fill: darkred;
 }
 
 text a:visited {
@@ -35,5 +35,5 @@ text a:visited {
 text a:hover,
 text a:active {
     text-decoration: underline;
-    fill: darkred;
+    fill: navy;
 }
