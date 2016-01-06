@@ -25,7 +25,11 @@
             var svg = d3.select("body").append("svg")
                 .attr("width", width)
                 .attr("height", height)
-                .style("border", "1px solid black");
+                .style("border", "1px solid black")
+                .call(d3.behavior.zoom().on("zoom", function() {
+                    svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+                }))
+                .append("g");
 
             var view = svg.append("view")
                 .attr("id", "view")
