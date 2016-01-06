@@ -15,11 +15,11 @@ def my_link():
     breadth = int(request.args.get('breadth'))
     depth = int(request.args.get('depth'))
 
-    if breadth > 5:
-        breadth = 5
+    if breadth > 6:
+        breadth = 6
 
-    if depth > 5:
-        depth = 5
+    if depth > 6:
+        depth = 6
 
     rec = recommender.Recommender(breadth, depth, nsfw)
     rec.load_dataset()
