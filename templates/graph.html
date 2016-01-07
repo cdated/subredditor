@@ -10,10 +10,28 @@
 
 <body>
     <script src="{{ url_for('static', filename='lib/d3.v3.min.js') }}"></script>
+
+    <div id="graph"></div>
+
+    <form action="graph">
+        <fieldset>
+            <legend>Graph Search:</legend>
+            Topic:
+            <input type="text" name="seed" value="programming">&emsp;&emsp; Breadth limit:
+            <input type="text" name="breadth" value="3">&emsp;&emsp; Depth limit:
+            <input type="text" name="depth" value="4">&emsp;&emsp; NSFW:
+            <input type="checkbox" name="nsfw" value="true">&emsp;&emsp;
+            <input type="submit" value="Submit">
+        </fieldset>
+    </form>
+
     <script>
         d3.json("{{filename}}", function(data) {
-            var width = 1000,
-                height = 500;
+            var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+            var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+            // Add whitespace
+            width -= 20;
+            height -= 100;
 
             var force = d3.layout.force()
                 .size([width, height])
@@ -22,9 +40,12 @@
                 .gravity(0.1)
                 .on("tick", tick);
 
-            var svg = d3.select("body").append("svg")
+            var svg = d3.select("#graph").append("svg")
                 .attr("width", width)
                 .attr("height", height)
+                .attr('viewBox', '0 0 ' + Math.min(width, height) + ' ' + Math.min(width, height))
+                .attr('preserveAspectRatio', 'xMinYMin')
+                .attr("transform", "translate(" + Math.min(width, height) / 2 + "," + Math.min(width, height) / 2 + ")")
                 .style("border", "1px solid black")
                 .call(d3.behavior.zoom().on("zoom", function() {
                     svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
@@ -145,6 +166,7 @@
 
         });
     </script>
+
 </body>
 
 </html>
