@@ -5,7 +5,9 @@ subredditor
 
 Subredditor creates visualizations of how subreddits relate to one another
 
-### Usage:
+![Webapp](https://github.com/cdated/subredditor/blob/master/example/webapp.png?raw=true)
+
+### Standalone Usage:
 
 To use `recommender.py` one must either populate the MongoDB database with https://github.com/cdated/reddit-crawler, or use mongorestore on the bson in data/dump/reddit.
 
@@ -39,10 +41,10 @@ Generating a graph of subreddits related to /r/wikipedia and /r/python.  Render 
 
 ```./recommender.py -s wikipedia -r -b 2```
 
-![Wikipedia Graph](https://github.com/cdated/subreddit-crawler/blob/master/example/wikipedia.png?raw=true)
+![Wikipedia Graph](https://github.com/cdated/subredditor/blob/master/example/wikipedia.png?raw=true)
 
 ======
 
 ```./recommender.py -s python -r -b 2```
 
-![Python Graph](https://github.com/cdated/subreddit-crawler/blob/master/example/python.png?raw=true)
+![Python Graph](https://github.com/cdated/subredditor/blob/master/example/python.png?raw=true)
