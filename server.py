@@ -12,7 +12,6 @@ def my_link():
     # here we want to get the value of user (i.e. ?user=some-value)
     seed = request.args.get('seed')
     nsfw = bool(request.args.get('nsfw'))
-    breadth = int(request.args.get('breadth'))
     depth = int(request.args.get('depth'))
 
     nsfw_str = ''
@@ -22,13 +21,13 @@ def my_link():
     if depth > 5:
         depth = 5
 
-    rec = recommender.Recommender(breadth, depth, nsfw)
+    rec = recommender.Recommender(depth, nsfw)
     rec.load_dataset()
 
     # Graph parameters
     rec.output_path = 'static'
 
-    filename = rec.output_path + '/' + seed + '_b' + str(breadth) + '_d' + str(depth) + nsfw_str + '.json'
+    filename = rec.output_path + '/' + seed + '_d' + str(depth) + nsfw_str + '.json'
     if os.path.exists(filename):
         # graph data exist, skip to render
         html = render_template('graph.html', filename=filename)
