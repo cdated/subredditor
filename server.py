@@ -19,11 +19,8 @@ def my_link():
     if nsfw:
         nsfw_str = '_nsfw'
 
-    if breadth > 6:
-        breadth = 6
-
-    if depth > 6:
-        depth = 6
+    if depth > 5:
+        depth = 5
 
     rec = recommender.Recommender(breadth, depth, nsfw)
     rec.load_dataset()

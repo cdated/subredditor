@@ -11,13 +11,10 @@ import os
 
 
 class Recommender:
-    def __init__(self, breadth=2, depth=2, nsfw=False, verbose=False):
-        self.breadth = breadth
+    def __init__(self, depth=2, nsfw=False, verbose=False):
         self.depth = depth
         self.verbose = verbose
         self.nsfw = nsfw
-
-        self.visited = {}
 
         # These vary from graph to graph
         self.edges= {}
@@ -47,7 +44,7 @@ class Recommender:
         self.sensored_cnt = 0
 
         # Ensure the generated file indicates nsfw or not
-        filename = seed + '_b' + str(self.breadth) + '_d' + str(self.depth)
+        filename = seed + '_d' + str(self.depth)
         filename = os.path.join(self.output_path, filename)
         if self.nsfw:
             filename += '_nsfw'
@@ -55,8 +52,12 @@ class Recommender:
         g = Digraph('G', format='png', filename=filename+'.gv')
 
         sub = self.col.find_one({'name': seed})
+        if not sub:
+            return ('Failure', 'Subreddit not in database, please try another subreddit')
         seed_cnt = sub['subscribers']
 
+        if sub['up_links'] != []:
+            g = self.add_edges(g, seed, 1, up=True, reverse=False)
 
         self.msg("Traversing up, then down")
         up_links = sub['up_links']
@@ -64,12 +65,13 @@ class Recommender:
             # Continue if a referrer does not have 50% subscribers
             # This is to prevent very small subs from clustering about a huge one
             subreddit = self.col.find_one({'name': item})
-            if subreddit['subscribers'] < (seed_cnt * 0.5):
+            if subreddit['subscribers'] < (seed_cnt * 0.2):
                 continue
-            g = self.add_edges(g, item, self.breadth, self.depth, up=True, reverse=False)
+            g = self.add_edges(g, item, self.depth-1, up=True, reverse=False)
+
         self.msg("Travsering straight down")
         if sub['down_links'] != []:
-            g = self.add_edges(g, seed, self.breadth, self.depth)
+            g = self.add_edges(g, seed, self.depth)
 
         if not len(self.edges):
             return ('Failure', 'Graph is empty, please try another subreddit')
@@ -97,17 +99,13 @@ class Recommender:
 
         return ('Sucess', filename)
 
-    def add_edges(self, graph, seed, breadth, depth, up=False, reverse=False):
+    def add_edges(self, graph, seed, depth, up=False, reverse=False):
         """ Add subreddits to graph as parent->child nodes through recusive lookup """
 
-        if seed in self.visited:
-            return graph
-
-        self.visited[seed] = True
 
         subreddit = self.col.find_one({'name': seed})
 
-        if (depth == 0) or (breadth == 0) or (not subreddit):
+        if (depth == 0) or (not subreddit):
             return graph
 
         # Get current number of subscribers
@@ -125,10 +123,9 @@ class Recommender:
         self.msg(seed)
         self.msg(links)
 
-        # Control breadth
         subs = links
-        random.shuffle(subs)
         for sub in subs:
+
             # Error in database, ignoring now
             if (sub == ':**') or (not sub):
                 continue
@@ -162,7 +159,7 @@ class Recommender:
                                   ',"target":' + str(self.nodes[b_node]) + ', "value":1}')
                 self.edges[cur_edge] = True
 
-            graph = self.add_edges(graph, sub, breadth-1, depth - 1, up)
+            graph = self.add_edges(graph, sub, depth - 1, up)
 
         return graph
 
@@ -183,11 +180,9 @@ def usage(parser):
         parser.print_help()
         sys.exit()
 
-
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-b', '--breadth', help='Tree traversal breadth', type=int, default=100)
     parser.add_argument('-d', '--depth', help='Tree traversal depth', type=int, default=2)
     parser.add_argument('-r', '--render', action='store_true', help='Render graph', default=False)
     parser.add_argument('-n', '--nsfw', action='store_true', help='Allow over 18 subreddits as nodes', default=False)
@@ -198,7 +193,7 @@ def main():
 
     args = parser.parse_args()
 
-    recommender = Recommender(args.breadth, args.depth, args.nsfw, args.verbose)
+    recommender = Recommender(args.depth, args.nsfw, args.verbose)
     recommender.load_dataset()
     recommender.generate_graph(args.subreddit, args.render)
 
