@@ -17,11 +17,7 @@ class Recommender:
         self.verbose = verbose
         self.nsfw = nsfw
 
-        # These only need to be read once per dataset
-        self.related_subs_down = {}
-        self.subscriber_cnts = {}
-        self.adult_table = {}
-        self.related_subs_up = {}
+        self.visited = {}
 
         # These vary from graph to graph
         self.edges= {}
@@ -35,6 +31,8 @@ class Recommender:
         self.nodes = {}
         self.links = []
 
+        self.col = None
+
     def msg(self, message):
         if self.verbose:
             print(message)
@@ -43,25 +41,7 @@ class Recommender:
         uri = os.environ.get('MONGOCLIENT','localhost')
         client = pymongo.MongoClient(uri)
         db = client.redditgraph
-
-        subreddits = db.subreddits.find({'type': 'subreddit'})
-        if subreddits:
-            for subreddit in subreddits:
-                title = subreddit['_id']
-                links = subreddit['linked']
-                for link in links:
-                    if link in self.related_subs_up:
-                        self.related_subs_up[link] += [title]
-                    else:
-                        self.related_subs_up[link] = [title]
-
-                if 'subscribers' in subreddit:
-                    self.subscriber_cnts[title] = subreddit['subscribers']
-
-                if 'adult' in subreddit:
-                    self.adult_table[title] = True
-
-                self.related_subs_down[title] = links
+        self.col = db.subreddits
 
     def generate_graph(self, seed, render):
         self.sensored_cnt = 0
@@ -74,15 +54,22 @@ class Recommender:
 
         g = Digraph('G', format='png', filename=filename+'.gv')
 
-        self.msg("Travsering straight down")
-        if seed in self.related_subs_down:
-            if self.related_subs_down[seed] != []:
-                g = self.add_edges(g, seed, self.breadth, self.depth)
+        sub = self.col.find_one({'name': seed})
+        seed_cnt = sub['subscribers']
+
 
         self.msg("Traversing up, then down")
-        if seed in self.related_subs_up:
-            for item in self.related_subs_up[seed][:2]:
-                g = self.add_edges(g, item, self.breadth, self.depth-1, up=True, reverse=True)
+        up_links = sub['up_links']
+        for item in up_links:
+            # Continue if a referrer does not have 50% subscribers
+            # This is to prevent very small subs from clustering about a huge one
+            subreddit = self.col.find_one({'name': item})
+            if subreddit['subscribers'] < (seed_cnt * 0.5):
+                continue
+            g = self.add_edges(g, item, self.breadth, self.depth, up=True, reverse=False)
+        self.msg("Travsering straight down")
+        if sub['down_links'] != []:
+            g = self.add_edges(g, seed, self.breadth, self.depth)
 
         if not len(self.edges):
             return ('Failure', 'Graph is empty, please try another subreddit')
@@ -113,27 +100,48 @@ class Recommender:
     def add_edges(self, graph, seed, breadth, depth, up=False, reverse=False):
         """ Add subreddits to graph as parent->child nodes through recusive lookup """
 
-        related_dict = self.related_subs_down
-        if (depth == 0) or (breadth == 0) or (not seed in related_dict):
+        if seed in self.visited:
             return graph
+
+        self.visited[seed] = True
+
+        subreddit = self.col.find_one({'name': seed})
+
+        if (depth == 0) or (breadth == 0) or (not subreddit):
+            return graph
+
+        # Get current number of subscribers
+        sub_cnt = subreddit['subscribers']
 
         if reverse:
             up = not up
 
+        if up:
+            links = subreddit['up_links']
+        else:
+            links = subreddit['down_links']
+
         self.msg('depth: ' + str(depth))
         self.msg(seed)
-        self.msg(related_dict[seed])
+        self.msg(links)
 
         # Control breadth
-        subs = related_dict[seed]
+        subs = links
         random.shuffle(subs)
-        for sub in subs[:breadth]:
+        for sub in subs:
             # Error in database, ignoring now
             if (sub == ':**') or (not sub):
                 continue
 
+            # If a child has less than 20% of the parent's subscribers filter it out
+            # This is to prevent too much clustering
+            new_link = self.col.find_one({'name': sub})
+            if new_link:
+                if new_link['subscribers'] < (sub_cnt * 0.2):
+                    continue
+
             # Apply censor
-            if sub in self.adult_table and not self.nsfw:
+            if subreddit['nsfw'] and not self.nsfw:
                 self.censored_cnt += 1
                 continue
 
