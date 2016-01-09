@@ -41,7 +41,7 @@
 
             var force = d3.layout.force()
                 .size([width, height])
-                .linkDistance(80)
+                .linkDistance(120)
                 .charge(-800)
                 .gravity(0.1)
                 .on("tick", tick);
@@ -121,11 +121,14 @@
                 circle.exit().remove();
 
                 // Compute new attributes for entering and updating circles.
-                circle.attr("r", 15)
+                circle.attr("r", function(d) {
+                        return d.subs;
+                    })
                     .attr("is", function(d) {
                         return "node-" + d.name
                     })
-                    .call(force.drag);
+
+                .call(force.drag);
 
 
                 // Compute the data join. This returns the update selection.

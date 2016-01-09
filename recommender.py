@@ -127,7 +127,7 @@ class Recommender:
             return graph
 
         # Get current number of subscribers
-        sub_cnt = subreddit['subscribers']
+        seed_cnt = subreddit['subscribers']
 
         if reverse:
             up = not up
@@ -164,16 +164,22 @@ class Recommender:
             # This is to prevent too much clustering
             new_link= self.query_db(sub)
             if new_link:
-                if new_link['subscribers'] < (sub_cnt * 0.1 * distance):
+                new_cnt = new_link['subscribers']
+                if new_cnt < (seed_cnt * 0.1 * distance):
                     continue
+            else:
+                continue
+
 
             if up:
                 a_node, b_node = sub, seed
+                a_cnt, b_cnt = new_cnt, seed_cnt
             else:
                 a_node, b_node = seed, sub
+                a_cnt, b_cnt = seed_cnt, new_cnt
 
-            self.update_nodes(a_node)
-            self.update_nodes(b_node)
+            self.update_nodes(a_node, a_cnt)
+            self.update_nodes(b_node, b_cnt)
 
             # Keep graph simple by only adding unqiue edges
             cur_edge = a_node + " -> " + b_node
@@ -188,10 +194,14 @@ class Recommender:
 
         return graph
 
-    def update_nodes(self, node):
+    def update_nodes(self, node, cnt):
         if not node in self.nodes:
             self.nodes[node] = self.node_count
-            self.node_list.append('{"name":"' + node +'"}')
+            try:
+                size = str(4*math.log(cnt, 10))
+            except:
+                size = '10'
+            self.node_list.append('{"name":"' + node +'", "subs":"' + size + '"}')
             self.node_count += 1
 
     def cleanup(self):
