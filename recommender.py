@@ -75,7 +75,7 @@ class Recommender:
         seed_cnt = sub['subscribers']
 
         if sub['up_links'] != []:
-            g = self.add_edges(g, seed, self.depth-1, up=True, reverse=False)
+            g = self.add_edges(g, seed, self.depth, up=True, reverse=False)
 
         self.msg("Traversing up, then down")
         up_links = sub['up_links']
