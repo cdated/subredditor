@@ -48,6 +48,10 @@ class Recommender:
         # Memoize database queries
         if sub_name in self.local_dict:
             sub = self.local_dict[sub_name]
+            # If local lookup fails do db lookup
+            if not sub:
+                del self.local_dict[sub_name]
+                sub = query_db(sub_name)
         else:
             sub = self.col.find_one({'name': sub_name})
             self.local_dict[sub_name] = sub
@@ -79,7 +83,7 @@ class Recommender:
             # Continue if a referrer does not have 50% subscribers
             # This is to prevent very small subs from clustering about a huge one
             subreddit = self.query_db(item)
-            if subreddit['subscribers'] < (seed_cnt * 0.5):
+            if subreddit['subscribers'] < (seed_cnt * 0.2):
                 continue
             g = self.add_edges(g, item, self.depth-1, up=True, reverse=True)
 
@@ -165,7 +169,7 @@ class Recommender:
             new_link= self.query_db(sub)
             if new_link:
                 new_cnt = new_link['subscribers']
-                if new_cnt < (seed_cnt * 0.1 * distance):
+                if (new_cnt < (seed_cnt * 0.2 * distance)) and (self.depth-depth > 0):
                     continue
             else:
                 continue
@@ -198,7 +202,10 @@ class Recommender:
         if not node in self.nodes:
             self.nodes[node] = self.node_count
             try:
-                size = str(4*math.log(cnt, 10))
+                # Scale subscriber counts to emphasis order of magnitude difference
+                # without letting large subs dominate the graph
+                scale = math.ceil(math.log(cnt, 10))
+                size = str(scale*scale)
             except:
                 size = '10'
             self.node_list.append('{"name":"' + node +'", "subs":"' + size + '"}')

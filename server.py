@@ -21,7 +21,9 @@ def my_link():
     if depth > 5:
         depth = 5
 
-    rec = recommender.Recommender(depth, nsfw)
+    rec = recommender.Recommender()
+    rec.depth = depth
+    rec.nsfw = nsfw
     rec.load_dataset()
 
     # Graph parameters
