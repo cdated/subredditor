@@ -5,6 +5,7 @@
 <html>
 
 <head>
+    <title>Subredditor</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/graph.css') }}">
 </head>
 
@@ -23,10 +24,10 @@
         <fieldset>
             <legend>Graph Search:</legend>
             Topic:
-            <input type="text" name="seed" value="programming">&emsp;&emsp; Depth limit:
-            <input name="depth" type="range" min="1" max="5" value="2" step="1" onchange="showValue('depth', this.value)" />
-            <span id="depth">2</span>&emsp;&emsp;NSFW:
-            <input type="checkbox" name="nsfw" value="true">&emsp;&emsp;
+            <input type="text" name="seed" value="{{seed}}">&emsp;&emsp; Depth limit:
+            <input name="depth" type="range" min="1" max="5" value="{{depth}}" step="1" onchange="showValue('depth', this.value)" />
+            <span id="depth">{{depth}}</span>&emsp;&emsp;NSFW:
+            <input type="checkbox" name="nsfw" {{nsfw}}>&emsp;&emsp;
             <input type="submit" value="Submit">
         </fieldset>
     </form>

@@ -15,8 +15,10 @@ def my_link():
     depth = int(request.args.get('depth'))
 
     nsfw_str = ''
+    nsfw_html = ''
     if nsfw:
         nsfw_str = '_nsfw'
+        nsfw_html = 'checked="true"'
 
     if depth > 5:
         depth = 5
@@ -32,14 +34,16 @@ def my_link():
     filename = rec.output_path + '/' + seed + '_d' + str(depth) + nsfw_str + '.json'
     if os.path.exists(filename):
         # graph data exist, skip to render
-        html = render_template('graph.html', filename=filename)
+        html = render_template('graph.html', filename=filename, seed=seed, 
+                               depth=depth, nsfw=nsfw_html)
     else:
         # generate graph data
         (result, msg) = rec.generate_graph(seed, False)
 
         if result == 'Sucess':
             filename = msg
-            html = render_template('graph.html', filename=filename)
+            html = render_template('graph.html', filename=filename, seed=seed, 
+                               depth=depth, nsfw=nsfw_html)
         else:
             html = msg
 
