@@ -41,7 +41,6 @@ class Recommender:
     def load_dataset(self):
         uri = os.environ.get('MONGOCLIENT','localhost')
         client = pymongo.MongoClient(uri)
-        client = pymongo.MongoClient()
         db = client.redditgraph
         self.col = db.subreddits
 
