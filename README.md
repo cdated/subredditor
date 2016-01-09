@@ -5,7 +5,9 @@ subredditor
 
 Subredditor creates visualizations of how subreddits relate to one another
 
-![Webapp](https://github.com/cdated/subredditor/blob/master/example/webapp.png?raw=true)
+<p align="center">
+  <img src="https://github.com/cdated/subredditor/blob/master/example/webapp.png?raw=true" alt="Webapp" width="600px" height="whatever">
+</p>
 
 ### Standalone Usage:
 
