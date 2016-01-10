@@ -10,7 +10,7 @@ def index():
 @app.route('/graph')
 def my_link():
     # here we want to get the value of user (i.e. ?user=some-value)
-    seed = request.args.get('seed')
+    seed = request.args.get('seed').lower()
     nsfw = bool(request.args.get('nsfw'))
     depth = int(request.args.get('depth'))
 
