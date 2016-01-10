@@ -8,6 +8,7 @@ import argparse
 import random
 import sys
 import os
+import pickle
 
 
 class Recommender:
@@ -44,6 +45,10 @@ class Recommender:
         db = client.redditgraph
         self.col = db.subreddits
 
+        pickle_dict = "local_dict.p"
+        if os.path.exists(pickle_dict):
+            self.local_dict = pickle.load( open( pickle_dict, "rb" ) )
+
     def query_db(self, sub_name):
         # Memoize database queries
         if sub_name in self.local_dict:
@@ -51,7 +56,7 @@ class Recommender:
             # If local lookup fails do db lookup
             if not sub:
                 del self.local_dict[sub_name]
-                sub = query_db(sub_name)
+                sub = self.query_db(sub_name)
         else:
             sub = self.col.find_one({'name': sub_name})
             self.local_dict[sub_name] = sub
@@ -195,6 +200,8 @@ class Recommender:
                 self.edges[cur_edge] = True
 
             graph = self.add_edges(graph, sub, depth - 1, up)
+
+        pickle.dump( self.local_dict, open( "local_dict.p", "wb" ) )
 
         return graph
 
