@@ -45,7 +45,7 @@ class Recommender:
         db = client.redditgraph
         self.col = db.subreddits
 
-        pickle_dict = "local_dict.p"
+        pickle_dict = "local_dict.pickle"
         if os.path.exists(pickle_dict):
             self.local_dict = pickle.load( open( pickle_dict, "rb" ) )
 
@@ -201,7 +201,7 @@ class Recommender:
 
             graph = self.add_edges(graph, sub, depth - 1, up)
 
-        pickle.dump( self.local_dict, open( "local_dict.p", "wb" ) )
+        pickle.dump( self.local_dict, open( "local_dict.pickle", "wb" ) )
 
         return graph
 
