@@ -20,8 +20,8 @@ def my_link():
         nsfw_str = '_nsfw'
         nsfw_html = 'checked="true"'
 
-    if depth > 5:
-        depth = 5
+    if depth > 3:
+        depth = 3
 
     rec = recommender.Recommender()
     rec.depth = depth
