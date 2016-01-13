@@ -120,7 +120,7 @@ class Recommender:
 
         self.cleanup()
 
-        return ('Sucess', filename)
+        return ('Success', filename)
 
     def add_edges(self, graph, seed, depth, up=False, reverse=False):
         """ Add subreddits to graph as parent->child nodes through recusive lookup """

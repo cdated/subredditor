@@ -8,44 +8,45 @@ def index():
     return render_template('template.html')
 
 @app.route('/graph')
-def my_link():
-    # here we want to get the value of user (i.e. ?user=some-value)
+def generate_graph():
+    # Get the values (i.e. ?seed=some-subreddit&depth=2&nsfw=on)
     seed = request.args.get('seed').lower()
-    nsfw = bool(request.args.get('nsfw'))
     depth = int(request.args.get('depth'))
+    nsfw = bool(request.args.get('nsfw'))
 
-    nsfw_str = ''
-    nsfw_html = ''
+    # Check checkbox and add '_nsfw' suffix to generated files if nsfw
+    nsfw_str, nsfw_html = '', ''
     if nsfw:
         nsfw_str = '_nsfw'
         nsfw_html = 'checked="true"'
 
+    # Max out depth users can input
     if depth > 3:
         depth = 3
 
+    # Create class instance of the graph generator
     rec = recommender.Recommender()
     rec.depth = depth
     rec.nsfw = nsfw
     rec.load_dataset()
 
-    # Graph parameters
+    # Build filename new output file
     rec.output_path = 'static'
-
     filename = rec.output_path + '/' + seed + '_d' + str(depth) + nsfw_str + '.json'
+
+    # If graph exists, load from cache, else generate it
     if os.path.exists(filename):
-        # graph data exist, skip to render
-        html = render_template('graph.html', filename=filename, seed=seed, 
-                               depth=depth, nsfw=nsfw_html)
+        (result, msg) = 'Success', ''
     else:
-        # generate graph data
         (result, msg) = rec.generate_graph(seed, False)
 
-        if result == 'Sucess':
-            filename = msg
-            html = render_template('graph.html', filename=filename, seed=seed, 
+    # Render output html with graph data
+    if result == 'Success':
+        html = render_template('graph.html', filename=filename, seed=seed, 
                                depth=depth, nsfw=nsfw_html)
-        else:
-            html = msg
+    # Print error message to user
+    else:
+        html = msg
 
     return html
 
