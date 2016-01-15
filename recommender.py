@@ -5,11 +5,9 @@ from graphviz import Digraph
 import math
 import pymongo
 import argparse
-import random
 import sys
 import os
 import pickle
-
 
 class Recommender:
     def __init__(self, depth=2, nsfw=False, verbose=False):
@@ -36,15 +34,21 @@ class Recommender:
         self.down_visited = {}
 
     def msg(self, message):
+        """ Conditional print to console """
+        
         if self.verbose:
             print(message)
 
     def load_dataset(self):
+        """ Setup db cursor and load cached data into memory """
+
+        # Load env variable MONGOCLIENT if set, otherwise set to localhost
         uri = os.environ.get('MONGOCLIENT','localhost')
         client = pymongo.MongoClient(uri)
         db = client.redditgraph
         self.col = db.subreddits
 
+        # Load a local copy accessed database records to mitigate Mongolab response times
         pickle_dict = "local_dict.pickle"
         if os.path.exists(pickle_dict):
             self.local_dict = pickle.load( open( pickle_dict, "rb" ) )
@@ -230,14 +234,19 @@ def usage(parser):
         sys.exit()
 
 def main():
+    """ Parse cli args and kick off graph generation """
+
     parser = argparse.ArgumentParser()
-
-    parser.add_argument('-d', '--depth', help='Tree traversal depth', type=int, default=2)
-    parser.add_argument('-r', '--render', action='store_true', help='Render graph', default=False)
-    parser.add_argument('-n', '--nsfw', action='store_true', help='Allow over 18 subreddits as nodes', default=False)
-    parser.add_argument('-s', '--subreddit', help='Root subreddit', required=True)
-    parser.add_argument('-v', '--verbose', action='store_true', help='Show debugging', default=False)
-
+    parser.add_argument('-d', '--depth', type=int, default=2,
+                        help='Tree traversal depth')
+    parser.add_argument('-r', '--render', action='store_true', default=False,
+                        help='Render graph')
+    parser.add_argument('-n', '--nsfw', action='store_true', default=False,
+                        help='Allow over 18 subreddits as nodes')
+    parser.add_argument('-s', '--subreddit', required=True,
+                        help='Root subreddit')
+    parser.add_argument('-v', '--verbose', action='store_true', default=False,
+                        help='Show debugging')
     usage(parser)
 
     args = parser.parse_args()
