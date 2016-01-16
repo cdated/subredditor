@@ -71,9 +71,18 @@ function graph(data) {
         path.enter().append("path")
             .attr("class", "link")
             .style("stroke", function(d) {
-                return d3.rgb(5 * d.value, 200 + d.value, 127 - 2 * d.value);
+                var scheme = Please.make_scheme({
+                    h: 145,
+                    s: .7,
+                    v: .6
+                }, {
+                    scheme_type: 'triadic',
+                    format: 'rgb-string'
+                });
+                return d3.rgb(scheme[d.value - 1]);
             })
-            .attr("marker-end", "url(#arrow)");
+            //.attr("marker-end", "url(#arrow)");
+            .attr("marker-end", "");
 
         // -------------------------------
 
