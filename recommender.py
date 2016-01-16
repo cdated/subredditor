@@ -9,14 +9,16 @@ import sys
 import os
 import pickle
 
+
 class Recommender:
+
     def __init__(self, depth=2, nsfw=False, verbose=False):
         self.depth = depth
         self.verbose = verbose
         self.nsfw = nsfw
 
         # These vary from graph to graph
-        self.edges= {}
+        self.edges = {}
         self.censored_cnt = 0
 
         # Alternate path other than current dir
@@ -35,7 +37,7 @@ class Recommender:
 
     def msg(self, message):
         """ Conditional print to console """
-        
+
         if self.verbose:
             print(message)
 
@@ -43,15 +45,16 @@ class Recommender:
         """ Setup db cursor and load cached data into memory """
 
         # Load env variable MONGOCLIENT if set, otherwise set to localhost
-        uri = os.environ.get('MONGOCLIENT','localhost')
+        uri = os.environ.get('MONGOCLIENT', 'localhost')
         client = pymongo.MongoClient(uri)
         db = client.redditgraph
         self.col = db.subreddits
 
-        # Load a local copy accessed database records to mitigate Mongolab response times
+        # Load a local copy of accessed database records, mitigates Mongolab
+        # response times
         pickle_dict = "local_dict.pickle"
         if os.path.exists(pickle_dict):
-            self.local_dict = pickle.load( open( pickle_dict, "rb" ) )
+            self.local_dict = pickle.load(open(pickle_dict, "rb"))
 
     def query_db(self, sub_name):
         """ Check the local cache, otherwise query remote db """
@@ -80,7 +83,7 @@ class Recommender:
         if self.nsfw:
             filename += '_nsfw'
 
-        g = Digraph('G', format='png', filename=filename+'.gv')
+        g = Digraph('G', format='png', filename=filename + '.gv')
 
         sub = self.query_db(seed)
         if not sub:
@@ -93,12 +96,12 @@ class Recommender:
         self.msg("Traversing up, then down")
         up_links = sub['up_links']
         for item in up_links:
-            # Continue if a referrer does not have 50% subscribers
-            # This is to prevent very small subs from clustering about a huge one
+            # Ignore if a referrer does not have 20% subscribers
+            # Prevent very small subs from clustering about a huge one
             subreddit = self.query_db(item)
             if subreddit['subscribers'] < (seed_cnt * 0.2):
                 continue
-            g = self.add_edges(g, item, self.depth-1, up=True, reverse=True)
+            g = self.add_edges(g, item, self.depth - 1, up=True, reverse=True)
 
         self.msg("Travsering straight down")
         if sub['down_links'] != []:
@@ -109,7 +112,6 @@ class Recommender:
 
         if self.censored_cnt >= 1:
             self.msg('# of NSFW nodes removed: ' + str(self.censored_cnt))
-
 
         # Draw graphviz graph
         if render:
@@ -123,7 +125,7 @@ class Recommender:
             print('{"nodes":[', end="", file=d3)
             print(', '.join(self.node_list), end="", file=d3)
             print('], "links":[', end="", file=d3)
-            print(', '.join(self.links) , end="", file=d3)
+            print(', '.join(self.links), end="", file=d3)
             print(']}', end="", file=d3)
 
         self.cleanup()
@@ -170,7 +172,7 @@ class Recommender:
 
         # As we get further from the seed we need to be more careful
         # about adding child nodes
-        distance = self.depth/depth
+        distance = self.depth / depth
 
         subs = links
         for sub in subs:
@@ -181,10 +183,10 @@ class Recommender:
 
             # If a child has less than 20% of the parent's subscribers filter it out
             # This is to prevent too much clustering
-            new_link= self.query_db(sub)
+            new_link = self.query_db(sub)
             if new_link:
                 new_cnt = new_link['subscribers']
-                if (new_cnt < (seed_cnt * 0.2 * distance)) and (self.depth-depth > 0):
+                if (new_cnt < (seed_cnt * 0.2 * distance)) and (self.depth - depth > 0):
                     continue
             else:
                 continue
@@ -198,7 +200,8 @@ class Recommender:
                 a_cnt, b_cnt = seed_cnt, new_cnt
 
             # Add an index for each node:
-            # d3 connects edges as idxA, idxB so we need to store their positions
+            # d3 connects edges as idxA->idxB
+            # so we need to store their names and numbers (indices)
             self.update_nodes(a_node, a_cnt)
             self.update_nodes(b_node, b_cnt)
 
@@ -221,7 +224,7 @@ class Recommender:
             graph = self.add_edges(graph, sub, depth - 1, up)
 
         # Save cache to disk
-        pickle.dump( self.local_dict, open( "local_dict.pickle", "wb" ) )
+        pickle.dump(self.local_dict, open("local_dict.pickle", "wb"))
 
         return graph
 
@@ -232,15 +235,17 @@ class Recommender:
                 # Scale subscriber counts to emphasis order of magnitude difference
                 # without letting large subs dominate the graph
                 scale = math.ceil(math.log(cnt, 10))
-                size = str(scale*scale)
+                size = str(scale * scale)
             except:
                 size = '10'
-            self.node_list.append('{"name":"' + node +'", "subs":"' + size + '"}')
+            self.node_list.append(
+                '{"name":"' + node + '", "subs":"' + size + '"}')
             self.node_count += 1
 
     def cleanup(self):
-        self.edges= {}
+        self.edges = {}
         self.censored_cnt = 0
+
 
 def usage(parser):
     """ Let the user know the expected runtime args """
@@ -248,6 +253,7 @@ def usage(parser):
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit()
+
 
 def main():
     """ Parse cli args and kick off graph generation """
