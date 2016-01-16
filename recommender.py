@@ -54,6 +54,8 @@ class Recommender:
             self.local_dict = pickle.load( open( pickle_dict, "rb" ) )
 
     def query_db(self, sub_name):
+        """ Check the local cache, otherwise query remote db """
+
         # Memoize database queries
         if sub_name in self.local_dict:
             sub = self.local_dict[sub_name]
@@ -68,6 +70,8 @@ class Recommender:
         return sub
 
     def generate_graph(self, seed, render):
+        """ Create graph by connecting adjacent nodes """
+
         self.sensored_cnt = 0
 
         # Ensure the generated file indicates nsfw or not
@@ -104,7 +108,7 @@ class Recommender:
             return ('Failure', 'Graph is empty, please try another subreddit')
 
         if self.censored_cnt >= 1:
-            print('# of NSFW nodes removed: ' + str(self.censored_cnt))
+            self.msg('# of NSFW nodes removed: ' + str(self.censored_cnt))
 
 
         # Draw graphviz graph
@@ -142,6 +146,8 @@ class Recommender:
         # Get current number of subscribers
         seed_cnt = subreddit['subscribers']
 
+        # This is used once to get the sibling referers
+        # Rather than go straight up or down, go up one level and recurse down
         if reverse:
             up = not up
 
@@ -183,7 +189,7 @@ class Recommender:
             else:
                 continue
 
-
+            # If traversing up, change direction of nodes
             if up:
                 a_node, b_node = sub, seed
                 a_cnt, b_cnt = new_cnt, seed_cnt
@@ -191,6 +197,8 @@ class Recommender:
                 a_node, b_node = seed, sub
                 a_cnt, b_cnt = seed_cnt, new_cnt
 
+            # Add an index for each node:
+            # d3 connects edges as idxA, idxB so we need to store their positions
             self.update_nodes(a_node, a_cnt)
             self.update_nodes(b_node, b_cnt)
 
@@ -198,13 +206,21 @@ class Recommender:
             cur_edge = a_node + " -> " + b_node
             self.msg(cur_edge)
             if not cur_edge in self.edges:
+                # Add edge for graphviz
                 graph.edge(a_node, b_node)
+
+                # Add edge for d3.js
                 self.links.append('{"source":' + str(self.nodes[a_node]) +
-                                  ',"target":' + str(self.nodes[b_node]) + ', "value":1}')
+                                  ',"target":' + str(self.nodes[b_node]) +
+                                  ',"value":' + str(depth) + '}')
+
+                # Save edge to ensure it can only be added once
                 self.edges[cur_edge] = True
 
+            # Recurse related subs until depth is exhausted
             graph = self.add_edges(graph, sub, depth - 1, up)
 
+        # Save cache to disk
         pickle.dump( self.local_dict, open( "local_dict.pickle", "wb" ) )
 
         return graph
