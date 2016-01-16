@@ -21,11 +21,11 @@ text {
     text-anchor: middle;
     font: 14px sans-serif;
     /*pointer-events: none;*/
-    text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+    text-shadow: 0 1px 0 #000, 1px 0 0 #000, 0 -1px 0 #000, -1px 0 0 #000;
 }
 
 text a {
-    fill: darkred;
+    fill: white;
 }
 
 text a:visited {
@@ -35,5 +35,5 @@ text a:visited {
 text a:hover,
 text a:active {
     text-decoration: underline;
-    fill: navy;
+    fill: blue;
 }

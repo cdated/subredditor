@@ -93,6 +93,16 @@ function graph(data) {
             .attr("is", function(d) {
                 return "node-" + d.name
             })
+            .style("fill", function(d) {
+                var nodeColor = Please.make_color({
+                    golden: true, //disable default
+                    base_color: 'lightblue',
+                    saturation: .7, //set your saturation manually
+                    value: .8, //set your value manually
+                    format: 'rgb-string'
+                });
+                return d3.rgb(nodeColor);
+            })
 
         .call(force.drag);
 
