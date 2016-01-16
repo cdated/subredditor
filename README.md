@@ -20,8 +20,6 @@ usage: recommender.py [-h] [-b BREADTH] [-d DEPTH] [-r] [-n] [-s SUBREDDIT] [-v]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -b BREADTH, --breadth BREADTH
-                        Tree traversal breadth
   -d DEPTH, --depth DEPTH
                         Tree traversal depth
   -r, --render          Render graph
@@ -41,12 +39,12 @@ Generating a graph of subreddits related to /r/wikipedia and /r/python.  Render 
 
 ======
 
-```./recommender.py -s wikipedia -r -b 2```
+```./recommender.py -s wikipedia -r```
 
 ![Wikipedia Graph](https://github.com/cdated/subredditor/blob/master/example/wikipedia.png?raw=true)
 
 ======
 
-```./recommender.py -s python -r -b 2```
+```./recommender.py -s python -r```
 
 ![Python Graph](https://github.com/cdated/subredditor/blob/master/example/python.png?raw=true)
