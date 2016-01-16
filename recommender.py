@@ -98,9 +98,9 @@ class Recommender:
         for item in up_links:
             # Ignore if a referrer does not have 20% subscribers
             # Prevent very small subs from clustering about a huge one
-            subreddit = self.query_db(item)
-            if subreddit['subscribers'] < (seed_cnt * 0.2):
-                continue
+            # subreddit = self.query_db(item)
+            # if subreddit['subscribers'] < (seed_cnt * 0.2):
+            #     continue
             g = self.add_edges(g, item, self.depth - 1, up=True, reverse=True)
 
         self.msg("Travsering straight down")
