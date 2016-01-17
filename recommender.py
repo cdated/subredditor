@@ -21,13 +21,14 @@ class Recommender:
         self.edges = {}
         self.censored_cnt = 0
 
-        # Alternate path other than current dir
+        # Alternate path for generated files
+        # Used in webapp to specify 'static' dir
         self.output_path = ''
 
-        self.node_count = 0
-        self.node_list = []
-        self.nodes = {}
-        self.links = []
+        # Data structures used to construct d3 output json
+        self.d3_node_list = []
+        self.node_idx_map = {}
+        self.d3_edges = []
 
         self.col = None
         self.local_dict = {}
@@ -38,6 +39,7 @@ class Recommender:
     def msg(self, message):
         """ Conditional print to console """
 
+        # A single point to check verbosity
         if self.verbose:
             print(message)
 
@@ -123,9 +125,9 @@ class Recommender:
         filename = filename + '.json'
         with open(filename, "wt") as d3:
             print('{"nodes":[', end="", file=d3)
-            print(', '.join(self.node_list), end="", file=d3)
+            print(', '.join(self.d3_node_list), end="", file=d3)
             print('], "links":[', end="", file=d3)
-            print(', '.join(self.links), end="", file=d3)
+            print(', '.join(self.d3_edges), end="", file=d3)
             print(']}', end="", file=d3)
 
         self.cleanup()
@@ -213,9 +215,9 @@ class Recommender:
                 graph.edge(a_node, b_node)
 
                 # Add edge for d3.js
-                self.links.append('{"source":' + str(self.nodes[a_node]) +
-                                  ',"target":' + str(self.nodes[b_node]) +
-                                  ',"value":' + str(depth) + '}')
+                self.d3_edges.append('{"source":' + str(self.node_idx_map[a_node]) +
+                                     ',"target":' + str(self.node_idx_map[b_node]) +
+                                     ',"value":' + str(depth) + '}')
 
                 # Save edge to ensure it can only be added once
                 self.edges[cur_edge] = True
@@ -229,8 +231,8 @@ class Recommender:
         return graph
 
     def update_nodes(self, node, cnt):
-        if not node in self.nodes:
-            self.nodes[node] = self.node_count
+        if not node in self.node_idx_map:
+            self.node_idx_map[node] = len(self.node_idx_map)
             try:
                 # Scale subscriber counts to emphasis order of magnitude difference
                 # without letting large subs dominate the graph
@@ -238,9 +240,8 @@ class Recommender:
                 size = str(scale * scale)
             except:
                 size = '10'
-            self.node_list.append(
+            self.d3_node_list.append(
                 '{"name":"' + node + '", "subs":"' + size + '"}')
-            self.node_count += 1
 
     def cleanup(self):
         self.edges = {}
