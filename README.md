@@ -1,6 +1,8 @@
 subredditor
 =================
 
+[![forthebadge](http://forthebadge.com/images/badges/built-with-love.svg)](http://forthebadge.com)
+
 ### Description:
 
 Subredditor creates visualizations of how subreddits relate to one another
