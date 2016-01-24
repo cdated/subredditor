@@ -1,0 +1,34 @@
+<script type="text/javascript">
+  function showValue(id, newValue) {
+    document.getElementById(id).innerHTML = newValue;
+  }
+</script>
+
+<form id="searchForm" action="graph" class="form-inline" role="form">
+  <legend>Search</legend>
+  <div class="form-group">
+    <label for="seed"> Topic</label>
+    <input type="text" class="form-control" id="seed" name="seed" value="{{seed | default('python')}}" required data-fv-notempty-message="Topic is required">
+  </div>
+  <div class="form-group">
+    <label for="depth"> Depth</label>
+  </div>
+  <div class="form-group">
+    <input class="bar" name="depth" type="range" min="1" max="3" value="{{depth | default('2')}}" step="1" onchange="showValue('depth', this.value)" />
+  </div>
+  <div class="form-group">
+    <span id="depth">{{depth | default('2')}}</span>
+  </div>
+  <div class="checkbox">
+    <label>
+      <input type="checkbox" name="nsfw" {{nsfw | default( '' )}}> NSFW
+    </label>
+  </div>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+<script>
+  $(document).ready(function() {
+    $('#searchForm').formValidation();
+  });
+</script>
