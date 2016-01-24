@@ -2,7 +2,7 @@ function graph(data) {
     var width = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
     var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
     // Add whitespace
-    width -= 220;
+    width -= 10;
     height -= 150;
 
     var force = d3.layout.force()
@@ -13,7 +13,7 @@ function graph(data) {
         .on("tick", tick);
 
     var svg = d3.select("#graph").append("svg")
-        .attr("width", width)
+        .attr("width", '99%')
         .attr("height", height)
         .attr('viewBox', '0 0 ' + Math.min(width, height) + ' ' + Math.min(width, height))
         .attr('preserveAspectRatio', 'xMinYMin')
