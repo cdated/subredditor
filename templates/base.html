@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="expires" content="-1">
+
+<head>
+  {% block head %}
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/graph.css') }}">
+  <script src="{{ url_for('static', filename='lib/graph.js') }}"></script>
+  <script src="{{ url_for('static', filename='lib/d3.v3.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='lib/Please-compressed.js') }}"></script>
+  <title>{% block title %}{% endblock %} - Subredditor</title>
+  {% endblock %}
+</head>
+
+<body>
+  <div id="content">{% block content %}{% endblock %}</div>
+  {% include 'footer.html' %}
+  <div id="footer">
+  </div>
+</body>
+
+</html>
