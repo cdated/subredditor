@@ -8,7 +8,7 @@ subredditor
 Subredditor creates visualizations of how subreddits relate to one another
 
 <p align="center">
-  <img src="https://github.com/cdated/subredditor/blob/master/example/webapp.png?raw=true" alt="Webapp" width="600px" height="whatever">
+  <img src="https://github.com/cdated/subredditor/blob/master/static/example/webapp.png?raw=true" alt="Webapp" width="600px" height="whatever">
 </p>
 
 ### Standalone Usage:
@@ -43,10 +43,10 @@ Generating a graph of subreddits related to /r/wikipedia and /r/python.  Render 
 
 ```./recommender.py -s wikipedia -r```
 
-![Wikipedia Graph](https://github.com/cdated/subredditor/blob/master/example/wikipedia.png?raw=true)
+![Wikipedia Graph](https://github.com/cdated/subredditor/blob/master/static/example/wikipedia.png?raw=true)
 
 ======
 
 ```./recommender.py -s python -r```
 
-![Python Graph](https://github.com/cdated/subredditor/blob/master/example/python.png?raw=true)
+![Python Graph](https://github.com/cdated/subredditor/blob/master/static/example/python.png?raw=true)
