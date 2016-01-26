@@ -3,7 +3,7 @@ function graph(data) {
     var height = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
     // Add whitespace
     width -= 10;
-    height -= 150;
+    height -= 175;
 
     var force = d3.layout.force()
         .size([width, height])

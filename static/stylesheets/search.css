@@ -95,3 +95,11 @@ input[type=range]:focus::-ms-fill-lower {
 input[type=range]:focus::-ms-fill-upper {
     background: rgba(54, 126, 189, 0.78);
 }
+
+.form-inline {
+    padding: 0px;
+}
+
+.form-inline > * {
+    margin: 15px 3px !important;
+}

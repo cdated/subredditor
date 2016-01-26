@@ -6,7 +6,7 @@
 
   <head>
     {% block head %}
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/range.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/search.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='stylesheets/graph.css') }}">
     <script src="{{ url_for('static', filename='lib/graph.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/d3.v3.min.js') }}"></script>
@@ -22,11 +22,6 @@
     {% endblock %}
 
   </head>
-
-  <center>
-    {% block graph %}
-    {% endblock %}
-  </center>
 
   <body>
     <div id="content" class="container-fluid">
